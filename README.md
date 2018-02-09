@@ -1,12 +1,13 @@
 # terraform-aws-cloudfront-s3-cdn
 
 Terraform module to easily provision an AWS CloudFront CDN with an S3 or custom origin.
+Note: Forked version where you specify an existing bucket used for logs, instead of the module creating a new log bucket for each use.
 
 ## Usage
 
 ```hcl
 module "cdn" {
-  source           = "git::https://github.com/cloudposse/terraform-aws-cloudfront-s3-cdn.git?ref=master"
+  source           = "git::https://github.com/anderssoder/terraform-aws-cloudfront-s3-cdn.git?ref=master"
   namespace        = "${var.namespace}"
   stage            = "${var.stage}"
   name             = "${var.name}"
@@ -50,7 +51,9 @@ aws acm request-certificate --domain-name example.com --subject-alternative-name
 | `forward_query_string`         | `false`                | Forward query strings to the origin that is associated with this cache behavior                                                                                   | No       |
 | `geo_restriction_locations`    | `[]`                   | List of country codes for which  CloudFront either to distribute content (whitelist) or not distribute your content (blacklist)                                   | No       |
 | `geo_restriction_type`         | `none`                 | Method that use to restrict distribution of your content by country: `none`, `whitelist`, or `blacklist`                                                          | No       |
-| `is_ipv6_enabled`              | `true`                 | State of CloudFront IPv6                                                                                                                                          | No       |
+| `is_ipv6_enabled`              | `true`                 | State of CloudFront IPv6                                                                                                                                          | 
+No       |
+| `log_bucket`                   | ``                     | Name of S3 bucket used for logging                                                                                                                                | No       |
 | `log_standard_transition_days` | `30`                   | Number of days to persist in the standard storage tier before moving to the glacier tier                                                                          | No       |
 | `log_glacier_transition_days`  | `60`                   | Number of days to persist in the standard storage tier before moving to the infrequent access                                                                     | No       |
 | `log_expiration_days`          | `90`                   | Number of days after which to expunge the objects                                                                                                                 | No       |
