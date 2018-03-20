@@ -62,6 +62,11 @@ resource "aws_s3_bucket" "origin" {
     expose_headers  = "${var.cors_expose_headers}"
     max_age_seconds = "${var.cors_max_age_seconds}"
   }
+
+  website {
+    index_document = "${var.index_document}"
+    error_document = "${var.error_document}"
+  }
 }
 
 module "distribution_label" {
