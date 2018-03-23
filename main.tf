@@ -111,7 +111,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   viewer_certificate {
-    acm_certificate_arn            = "${var.acm_certificate_arn}"
+    acm_certificate_arn            = "${var.acm_certificate_arn == "" ? var.acm_certificate_arn : aws_acm_certificate_validation.cert.certificate_arn}"
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1"
     cloudfront_default_certificate = "${var.acm_certificate_arn == "" ? true : false}"
@@ -154,4 +154,27 @@ module "dns" {
   parent_zone_name = "${var.parent_zone_name}"
   target_dns_name  = "${aws_cloudfront_distribution.default.domain_name}"
   target_zone_id   = "${aws_cloudfront_distribution.default.hosted_zone_id}"
+}
+
+resource "aws_acm_certificate" "cert" {
+  domain_name = "${var.parent_zone_name}"
+  validation_method = "DNS"
+}
+
+data "aws_route53_zone" "zone" {
+  name = "${var.parent_zone_name}."
+  private_zone = "${var.is_private_zone}"
+}
+
+resource "aws_route53_record" "cert_validation" {
+  name = "${aws_acm_certificate.cert.domain_validation_options.0.resource_record_name}"
+  type = "${aws_acm_certificate.cert.domain_validation_options.0.resource_record_type}"
+  zone_id = "${data.aws_route53_zone.zone.id}"
+  records = ["${aws_acm_certificate.cert.domain_validation_options.0.resource_record_value}"]
+  ttl = 60
+}
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn = "${aws_acm_certificate.cert.arn}"
+  validation_record_fqdns = ["${aws_route53_record.cert_validation.fqdn}"]
 }
