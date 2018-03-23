@@ -173,3 +173,7 @@ variable "null" {
   description = "an empty string"
   default     = ""
 }
+
+variable "is_private_zone" {
+  default = false
+}
