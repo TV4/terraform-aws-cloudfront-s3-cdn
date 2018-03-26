@@ -167,6 +167,7 @@ module "dns" {
   parent_zone_name = "${var.parent_zone_name}"
   target_dns_name  = "${aws_cloudfront_distribution.default.domain_name}"
   target_zone_id   = "${aws_cloudfront_distribution.default.hosted_zone_id}"
+  provider = "aws"
 }
 
 resource "aws_acm_certificate" "cert" {
@@ -178,6 +179,7 @@ resource "aws_acm_certificate" "cert" {
 data "aws_route53_zone" "zone" {
   name = "${var.parent_zone_name}."
   private_zone = "${var.is_private_zone}"
+  provider = "aws"
 }
 
 resource "aws_route53_record" "cert_validation" {
