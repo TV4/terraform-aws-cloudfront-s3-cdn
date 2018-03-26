@@ -1,3 +1,15 @@
+provider "aws" {
+  region = "eu-central-1"
+}
+
+provider "aws" {
+  alias = "src"
+}
+
+provider "aws" {
+  alias = "dst"
+}
+
 module "origin_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
   namespace  = "${var.namespace}"
@@ -10,6 +22,7 @@ module "origin_label" {
 
 resource "aws_cloudfront_origin_access_identity" "default" {
   comment = "${module.distribution_label.id}"
+  provider = "aws.dst"
 }
 
 data "aws_iam_policy_document" "origin" {
@@ -46,6 +59,7 @@ data "template_file" "default" {
 resource "aws_s3_bucket_policy" "default" {
   bucket = "${null_resource.default.triggers.bucket}"
   policy = "${data.template_file.default.rendered}"
+  provider = "aws.src"
 }
 
 resource "aws_s3_bucket" "origin" {
@@ -62,6 +76,7 @@ resource "aws_s3_bucket" "origin" {
     expose_headers  = "${var.cors_expose_headers}"
     max_age_seconds = "${var.cors_max_age_seconds}"
   }
+  provider = "aws.src"
 }
 
 module "distribution_label" {
@@ -82,6 +97,7 @@ resource "null_resource" "default" {
   lifecycle {
     create_before_destroy = true
   }
+  provider = "aws.src"
 }
 
 resource "aws_cloudfront_distribution" "default" {
@@ -145,6 +161,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   tags = "${module.distribution_label.tags}"
+  provider = "aws.src"
 }
 
 module "dns" {
@@ -159,6 +176,7 @@ module "dns" {
 resource "aws_acm_certificate" "cert" {
   domain_name = "${var.parent_zone_name}"
   validation_method = "DNS"
+  provider = "aws.dst"
 }
 
 data "aws_route53_zone" "zone" {
@@ -177,4 +195,5 @@ resource "aws_route53_record" "cert_validation" {
 resource "aws_acm_certificate_validation" "cert" {
   certificate_arn = "${aws_acm_certificate.cert.arn}"
   validation_record_fqdns = ["${aws_route53_record.cert_validation.fqdn}"]
+  provider = "aws.dst"
 }
