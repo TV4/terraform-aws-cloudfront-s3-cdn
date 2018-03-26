@@ -181,6 +181,7 @@ resource "aws_acm_certificate" "cert" {
 data "aws_route53_zone" "zone" {
   name = "${var.parent_zone_name}."
   private_zone = "${var.is_private_zone}"
+  provider = "aws.dst"
 }
 
 resource "aws_route53_record" "cert_validation" {
@@ -189,6 +190,7 @@ resource "aws_route53_record" "cert_validation" {
   zone_id = "${data.aws_route53_zone.zone.id}"
   records = ["${aws_acm_certificate.cert.domain_validation_options.0.resource_record_value}"]
   ttl = 60
+  provider = "aws.dst"
 }
 
 resource "aws_acm_certificate_validation" "cert" {
