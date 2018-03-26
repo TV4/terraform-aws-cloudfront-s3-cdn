@@ -183,6 +183,7 @@ resource "aws_acm_certificate" "cert" {
 data "aws_route53_zone" "zone" {
   name = "${var.parent_zone_name}."
   private_zone = "${var.is_private_zone}"
+  provider = "aws.src"
 }
 
 resource "aws_route53_record" "cert_validation" {
