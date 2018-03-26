@@ -19,7 +19,6 @@ module "origin_label" {
 
 resource "aws_cloudfront_origin_access_identity" "default" {
   comment = "${module.distribution_label.id}"
-  provider = "aws.dst"
 }
 
 data "aws_iam_policy_document" "origin" {
@@ -72,7 +71,6 @@ resource "aws_s3_bucket" "origin" {
     expose_headers  = "${var.cors_expose_headers}"
     max_age_seconds = "${var.cors_max_age_seconds}"
   }
-  provider = "aws"
 }
 
 module "distribution_label" {
