@@ -167,7 +167,9 @@ module "dns" {
   parent_zone_name = "${var.parent_zone_name}"
   target_dns_name  = "${aws_cloudfront_distribution.default.domain_name}"
   target_zone_id   = "${aws_cloudfront_distribution.default.hosted_zone_id}"
-  provider = "aws"
+  providers {
+    aws = "aws"
+  }
 }
 
 resource "aws_acm_certificate" "cert" {
