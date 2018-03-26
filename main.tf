@@ -19,6 +19,7 @@ module "origin_label" {
 
 resource "aws_cloudfront_origin_access_identity" "default" {
   comment = "${module.distribution_label.id}"
+  provider = "aws"
 }
 
 data "aws_iam_policy_document" "origin" {
@@ -55,6 +56,7 @@ data "template_file" "default" {
 resource "aws_s3_bucket_policy" "default" {
   bucket = "${null_resource.default.triggers.bucket}"
   policy = "${data.template_file.default.rendered}"
+  provider = "aws"
 }
 
 resource "aws_s3_bucket" "origin" {
@@ -71,6 +73,7 @@ resource "aws_s3_bucket" "origin" {
     expose_headers  = "${var.cors_expose_headers}"
     max_age_seconds = "${var.cors_max_age_seconds}"
   }
+  provider = "aws"
 }
 
 module "distribution_label" {
