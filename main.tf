@@ -1,10 +1,16 @@
+variable "profile" {
+  default = ""
+}
+
 provider "aws" {
   region = "eu-central-1"
+  profile = "${var.profile}"
 }
 
 provider "aws" {
   alias = "dst"
   region = "us-east-1"
+  profile = "${var.profile}"
 }
 
 module "origin_label" {
@@ -181,7 +187,7 @@ resource "aws_acm_certificate" "cert" {
 data "aws_route53_zone" "zone" {
   name = "${var.parent_zone_name}."
   private_zone = "${var.is_private_zone}"
-  provider = "aws.dst"
+  provider = "aws"
 }
 
 resource "aws_route53_record" "cert_validation" {
@@ -190,7 +196,6 @@ resource "aws_route53_record" "cert_validation" {
   zone_id = "${data.aws_route53_zone.zone.id}"
   records = ["${aws_acm_certificate.cert.domain_validation_options.0.resource_record_value}"]
   ttl = 60
-  provider = "aws.dst"
 }
 
 resource "aws_acm_certificate_validation" "cert" {
