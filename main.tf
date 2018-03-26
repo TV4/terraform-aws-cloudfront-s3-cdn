@@ -99,7 +99,6 @@ resource "null_resource" "default" {
   lifecycle {
     create_before_destroy = true
   }
-  provider = "aws.src"
 }
 
 resource "aws_cloudfront_distribution" "default" {
