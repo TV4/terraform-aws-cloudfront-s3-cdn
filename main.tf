@@ -4,10 +4,12 @@ provider "aws" {
 
 provider "aws" {
   alias = "src"
+  region = "eu-central-1"
 }
 
 provider "aws" {
   alias = "dst"
+  region = "us-east-1"
 }
 
 module "origin_label" {
