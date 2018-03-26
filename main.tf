@@ -3,11 +3,6 @@ provider "aws" {
 }
 
 provider "aws" {
-  alias = "src"
-  region = "eu-central-1"
-}
-
-provider "aws" {
   alias = "dst"
   region = "us-east-1"
 }
@@ -61,7 +56,6 @@ data "template_file" "default" {
 resource "aws_s3_bucket_policy" "default" {
   bucket = "${null_resource.default.triggers.bucket}"
   policy = "${data.template_file.default.rendered}"
-  provider = "aws.src"
 }
 
 resource "aws_s3_bucket" "origin" {
@@ -78,7 +72,7 @@ resource "aws_s3_bucket" "origin" {
     expose_headers  = "${var.cors_expose_headers}"
     max_age_seconds = "${var.cors_max_age_seconds}"
   }
-  provider = "aws.src"
+  provider = "aws"
 }
 
 module "distribution_label" {
@@ -162,7 +156,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   tags = "${module.distribution_label.tags}"
-  provider = "aws.src"
+  provider = "aws"
 }
 
 module "dns" {
@@ -183,7 +177,6 @@ resource "aws_acm_certificate" "cert" {
 data "aws_route53_zone" "zone" {
   name = "${var.parent_zone_name}."
   private_zone = "${var.is_private_zone}"
-  provider = "aws.src"
 }
 
 resource "aws_route53_record" "cert_validation" {
