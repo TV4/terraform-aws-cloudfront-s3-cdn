@@ -171,7 +171,7 @@ module "dns" {
 
 resource "aws_acm_certificate" "cert" {
   domain_name = "${var.aliases[0]}"
-  subject_alternative_names = "${element(compact(split(",", replace(join(",",var.aliases), var.aliases[0], ""))), 0)}"
+  subject_alternative_names = "${compact(split(",", replace(join(",",var.aliases), var.aliases[0], "")))}"
   validation_method = "DNS"
   provider = "aws.dst"
 }
