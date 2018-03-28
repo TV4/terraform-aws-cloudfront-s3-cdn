@@ -2,13 +2,13 @@ variable "profile" {
   default = ""
 }
 
-provider "aws" {
-}
-
-provider "aws" {
-  alias = "dst"
-  region = "us-east-1"
-}
+# provider "aws" {
+# }
+#
+# provider "aws" {
+#   alias = "dst"
+#   region = "us-east-1"
+# }
 
 module "origin_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
