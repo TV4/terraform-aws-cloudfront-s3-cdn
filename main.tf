@@ -3,14 +3,11 @@ variable "profile" {
 }
 
 provider "aws" {
-  region = "eu-central-1"
-  profile = "${var.profile}"
 }
 
 provider "aws" {
   alias = "dst"
   region = "us-east-1"
-  profile = "${var.profile}"
 }
 
 module "origin_label" {
@@ -25,7 +22,6 @@ module "origin_label" {
 
 resource "aws_cloudfront_origin_access_identity" "default" {
   comment = "${module.distribution_label.id}"
-  provider = "aws"
 }
 
 data "aws_iam_policy_document" "origin" {
@@ -62,7 +58,6 @@ data "template_file" "default" {
 resource "aws_s3_bucket_policy" "default" {
   bucket = "${null_resource.default.triggers.bucket}"
   policy = "${data.template_file.default.rendered}"
-  provider = "aws"
 }
 
 resource "aws_s3_bucket" "origin" {
@@ -79,7 +74,6 @@ resource "aws_s3_bucket" "origin" {
     expose_headers  = "${var.cors_expose_headers}"
     max_age_seconds = "${var.cors_max_age_seconds}"
   }
-  provider = "aws"
 }
 
 module "distribution_label" {
@@ -163,7 +157,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   tags = "${module.distribution_label.tags}"
-  provider = "aws"
+  depends_on = ["aws_acm_certificate_validation.cert","aws_acm_certificate.cert"]
 }
 
 module "dns" {
@@ -173,21 +167,18 @@ module "dns" {
   parent_zone_name = "${var.parent_zone_name}"
   target_dns_name  = "${aws_cloudfront_distribution.default.domain_name}"
   target_zone_id   = "${aws_cloudfront_distribution.default.hosted_zone_id}"
-  providers {
-    aws = "aws"
-  }
 }
 
 resource "aws_acm_certificate" "cert" {
-  domain_name = "${var.parent_zone_name}"
+  domain_name = "${var.aliases[0]}"
+  subject_alternative_names = "${element(compact(split(",", replace(join(",",var.aliases), var.aliases[0], ""))), 0)}"
   validation_method = "DNS"
   provider = "aws.dst"
 }
 
 data "aws_route53_zone" "zone" {
-  name = "${var.parent_zone_name}."
-  private_zone = "${var.is_private_zone}"
-  provider = "aws"
+  name = "b17g-stage.net"
+  private_zone = false
 }
 
 resource "aws_route53_record" "cert_validation" {
