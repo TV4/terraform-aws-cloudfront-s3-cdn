@@ -190,7 +190,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "cert" {
-  count = "${var.aliases)}"
+  count = "${length(var.aliases)}"
   certificate_arn = "${aws_acm_certificate.cert.arn}"
   validation_record_fqdns = ["${element(aws_route53_record.cert_validation.*.fqdn, count.index)}"]
 }
