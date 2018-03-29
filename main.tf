@@ -182,10 +182,10 @@ data "aws_route53_zone" "zone" {
 
 resource "aws_route53_record" "cert_validation" {
   count = "${length(var.aliases)}"
-  name = "${element(concat(aws_acm_certificate.cert.domain_validation_options.*.resource_record_name, list("")), count.index)}"
+  name = "${element(aws_acm_certificate.cert.domain_validation_options.*.resource_record_name, count.index)}"
   type = "CNAME"
   zone_id = "${data.aws_route53_zone.zone.id}"
-  records = ["${element(concat(aws_acm_certificate.cert.domain_validation_options.*.resource_record_value, list("")), count.index)}"]
+  records = ["${element(aws_acm_certificate.cert.domain_validation_options.*.resource_record_value, count.index)}"]
   ttl = 60
 }
 
