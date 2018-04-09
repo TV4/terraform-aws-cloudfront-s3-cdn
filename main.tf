@@ -3,9 +3,6 @@ variable "profile" {
 }
 
 provider "aws" {
-}
-
-provider "aws" {
   alias = "def"
 }
 
