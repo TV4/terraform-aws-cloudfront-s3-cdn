@@ -178,6 +178,6 @@ variable "is_private_zone" {
   default = false
 }
 
-variable "use_existing_certificate" {
-  default = "false"
+variable "auto_create_certificate" {
+  default = "true"
 }
