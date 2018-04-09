@@ -120,7 +120,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   viewer_certificate {
-    acm_certificate_arn            = "${var.create_cert == "true" ? aws_acm_certificate_validation.cert.certificate_arn : var.acm_certificate_arn}"
+    acm_certificate_arn            = "${var.acm_certificate_arn == "" ? join(" ",aws_acm_certificate_validation.cert.*.certificate_arn) : var.acm_certificate_arn}" 
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1"
     cloudfront_default_certificate = false
@@ -167,7 +167,7 @@ module "dns" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  count = "${var.create_cert == "" ? 1 : 0}"
+  count = "${var.acm_certificate_arn == "" ? 1 : 0}"
   provider = "aws.dst"
   domain_name = "${var.aliases[0]}"
   subject_alternative_names = "${compact(split(",", replace(join(",",var.aliases), var.aliases[0], "")))}"
@@ -180,7 +180,7 @@ data "aws_route53_zone" "zone" {
 }
 
 resource "aws_route53_record" "cert_validation" {
-  count = "${var.create_cert == "" ? length(var.aliases) : 0}"
+  count = "${var.acm_certificate_arn == "" ? length(var.aliases) : 0}"
   name = "${lookup(aws_acm_certificate.cert.domain_validation_options[count.index], "resource_record_name")}"
   type = "${lookup(aws_acm_certificate.cert.domain_validation_options[count.index], "resource_record_type")}"
   zone_id = "${data.aws_route53_zone.zone.id}"
@@ -189,7 +189,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "cert" {
-  count = "${var.create_cert == "" ? 1 : 0}"
+  count = "${var.acm_certificate_arn == "" ? 1 : 0}"
   provider = "aws.dst"
   certificate_arn = "${aws_acm_certificate.cert.arn}"
   validation_record_fqdns = ["${aws_route53_record.cert_validation.*.fqdn}"]
