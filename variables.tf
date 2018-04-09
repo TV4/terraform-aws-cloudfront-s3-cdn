@@ -177,3 +177,7 @@ variable "null" {
 variable "is_private_zone" {
   default = false
 }
+
+variable "use_existing_certificate" {
+  default = "false"
+}

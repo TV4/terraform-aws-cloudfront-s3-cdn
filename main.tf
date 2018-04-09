@@ -1,7 +1,3 @@
-variable "profile" {
-  default = ""
-}
-
 provider "aws" {
   alias = "def"
 }
@@ -124,7 +120,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   viewer_certificate {
-    acm_certificate_arn            = "${var.acm_certificate_arn == "" ? var.acm_certificate_arn : aws_acm_certificate_validation.cert.certificate_arn}"
+    acm_certificate_arn            = "${var.use_existing_certificate == "" ? var.acm_certificate_arn : aws_acm_certificate_validation.cert.certificate_arn}"
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1"
     cloudfront_default_certificate = false
