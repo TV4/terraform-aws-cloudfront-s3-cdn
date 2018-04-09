@@ -2,13 +2,16 @@ variable "profile" {
   default = ""
 }
 
-# provider "aws" {
-# }
-#
-# provider "aws" {
-#   alias = "dst"
-#   region = "us-east-1"
-# }
+provider "aws" {
+}
+
+provider "aws" {
+  alias = "def"
+}
+
+provider "aws" {
+  alias = "dst"
+}
 
 module "origin_label" {
   source     = "git::https://github.com/cloudposse/terraform-null-label.git?ref=tags/0.2.1"
@@ -61,6 +64,7 @@ resource "aws_s3_bucket_policy" "default" {
 }
 
 resource "aws_s3_bucket" "origin" {
+  provider = "aws.def"
   count  = "${signum(length(var.origin_bucket)) == 1 ? 0 : 1}"
   bucket = "${module.origin_label.id}"
   acl    = "private"
@@ -170,6 +174,7 @@ module "dns" {
 }
 
 resource "aws_acm_certificate" "cert" {
+  provider = "aws.dst"
   domain_name = "${var.aliases[0]}"
   subject_alternative_names = "${compact(split(",", replace(join(",",var.aliases), var.aliases[0], "")))}"
   validation_method = "DNS"
@@ -190,6 +195,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "cert" {
+  provider = "aws.dst"
   certificate_arn = "${aws_acm_certificate.cert.arn}"
   validation_record_fqdns = ["${aws_route53_record.cert_validation.*.fqdn}"]
 }
