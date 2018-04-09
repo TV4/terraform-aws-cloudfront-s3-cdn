@@ -154,7 +154,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   tags = "${module.distribution_label.tags}"
-  depends_on = ["aws_acm_certificate_validation.cert","aws_acm_certificate.cert"]
+  #depends_on = ["aws_acm_certificate_validation.cert","aws_acm_certificate.cert"]
 }
 
 module "dns" {
@@ -167,6 +167,7 @@ module "dns" {
 }
 
 resource "aws_acm_certificate" "cert" {
+  count = "${var.acm_certificate_arn == "" ? 1 : 0}"
   provider = "aws.dst"
   domain_name = "${var.aliases[0]}"
   subject_alternative_names = "${compact(split(",", replace(join(",",var.aliases), var.aliases[0], "")))}"
@@ -179,7 +180,7 @@ data "aws_route53_zone" "zone" {
 }
 
 resource "aws_route53_record" "cert_validation" {
-  count = "${length(var.aliases)}"
+  count = "${var.acm_certificate_arn == "" ? length(var.aliases) : 0}"
   name = "${lookup(aws_acm_certificate.cert.domain_validation_options[count.index], "resource_record_name")}"
   type = "${lookup(aws_acm_certificate.cert.domain_validation_options[count.index], "resource_record_type")}"
   zone_id = "${data.aws_route53_zone.zone.id}"
@@ -188,6 +189,7 @@ resource "aws_route53_record" "cert_validation" {
 }
 
 resource "aws_acm_certificate_validation" "cert" {
+  count = "${var.acm_certificate_arn == "" ? 1 : 0}"
   provider = "aws.dst"
   certificate_arn = "${aws_acm_certificate.cert.arn}"
   validation_record_fqdns = ["${aws_route53_record.cert_validation.*.fqdn}"]
