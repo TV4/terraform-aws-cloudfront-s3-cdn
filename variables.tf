@@ -119,7 +119,7 @@ variable "forward_cookies" {
 }
 
 variable "price_class" {
-  default = "PriceClass_100"
+  default = "PriceClass_All"
 }
 
 variable "viewer_protocol_policy" {
