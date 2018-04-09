@@ -120,7 +120,7 @@ resource "aws_cloudfront_distribution" "default" {
   }
 
   viewer_certificate {
-    acm_certificate_arn            = "${var.acm_certificate_arn == "" ? join(" ",aws_acm_certificate_validation.cert.*.certificate_arn) : var.acm_certificate_arn}" 
+    acm_certificate_arn            = "${var.acm_certificate_arn == "" ? join(" ",aws_acm_certificate_validation.cert.*.certificate_arn) : var.acm_certificate_arn}"
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1"
     cloudfront_default_certificate = false
@@ -175,7 +175,7 @@ resource "aws_acm_certificate" "cert" {
 }
 
 data "aws_route53_zone" "zone" {
-  name = "b17g-stage.net"
+  name = "${var.parent_zone_name}"
   private_zone = false
 }
 
